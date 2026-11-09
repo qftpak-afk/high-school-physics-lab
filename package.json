@@ -1,0 +1,9 @@
+{
+  "name": "high-school-physics-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve public",
+    "test": "node --test \"tests/*.test.js\""
+  }
+}

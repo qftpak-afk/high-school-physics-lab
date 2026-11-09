@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>High School Physics Lab</title>
+<meta name="description" content="การทดลองฟิสิกส์ระดับมัธยมปลายแบบ 3 มิติ แยกตามสาขาของฟิสิกส์">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="shared/lab.css">
+<link rel="icon" href="shared/icon.svg" type="image/svg+xml">
+<style>
+/* แบบ A แคตตาล็อก: ตัวกรองสาขาด้านบน การ์ดจัดกลุ่มตามสาขา ภาพบนการ์ดคือผลที่นักเรียนจะได้เห็นในการทดลองนั้น */
+.wrap{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+header.top{padding:40px 0 0;display:grid;gap:6px}
+header.top small{color:var(--metre-text);font-weight:600;letter-spacing:.04em;font-size:13px}
+header.top h1{margin:0;font-size:clamp(28px,5vw,40px);line-height:1.15;font-weight:700;letter-spacing:-.01em}
+header.top p{margin:0;color:var(--mute);max-width:60ch}
+/* ขีดแบบไม้เมตร: เส้นยาวทุก 10 ช่อง */
+.ruler{height:14px;margin:24px 0 18px;border-top:2px solid var(--text);
+  background:repeating-linear-gradient(90deg,var(--text) 0 1px,transparent 1px 10px) top/100% 6px no-repeat,
+             repeating-linear-gradient(90deg,var(--text) 0 2px,transparent 2px 100px) top/100% 12px no-repeat}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:28px}
+.filter .chip[aria-pressed=true]{background:var(--metre);color:var(--metre-ink);border-color:var(--metre);font-weight:600}
+.count{font:500 13px var(--mono);color:var(--mute)}
+section.branch{margin-bottom:36px}
+section.branch h2{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;font-size:20px;font-weight:700}
+section.branch h2 span{font:500 13px var(--mono);color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--rule);border-radius:3px;overflow:hidden;min-width:0}
+.card .pic{display:block;aspect-ratio:320/120;background:#0f1317}
+.card .pic img{display:block;width:100%;height:100%}
+.card .info{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
+.card small{display:flex;justify-content:space-between;gap:8px;color:var(--metre-text);font-weight:600;font-size:12.5px;letter-spacing:.03em}
+.card h3{margin:0;font-size:18px;line-height:1.35;font-weight:700;text-wrap:balance}
+.card p{margin:0;color:var(--mute);font-size:14px;flex:1}
+.card dl{display:flex;gap:4px 16px;flex-wrap:wrap;margin:6px 0 0;font-size:13px}
+.card dl div{display:flex;gap:6px}
+.card dt{color:var(--mute)}
+.card dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.card a.go{align-self:flex-start;margin-top:8px;padding:9px 14px;background:var(--metre);color:var(--metre-ink);border-radius:3px;font-weight:600;text-decoration:none}
+.card a.go:hover{background:#cf9c2c}
+.card a.pic:hover img{opacity:.9}
+/* ยังพัฒนาไม่เสร็จ */
+.card.soon .pic img{opacity:.45;filter:grayscale(.6)}
+.card .badge{font-size:12px;font-weight:600;color:var(--mute);border:1px solid var(--rule);border-radius:2px;padding:0 6px;letter-spacing:0}
+.card .wait{margin-top:8px;font-size:13.5px;color:var(--mute)}
+.empty{color:var(--mute)}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;color:var(--mute);font-size:13px;border-top:1px solid var(--rule);padding-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <small>การทดลองฟิสิกส์ระดับมัธยมปลาย แบบ 3 มิติ</small>
+    <h1>High School Physics Lab</h1>
+    <p>ฝึกวิธีทดลองทีละขั้นกับอุปกรณ์จำลอง อ่านค่าจากเครื่องมือเอง บันทึกผล และคำนวณในหน้าเดียว ใช้ได้ทั้งนักเรียนและครูที่สาธิตหน้าห้อง</p>
+  </header>
+  <div class="ruler" aria-hidden="true"></div>
+  <div class="toolbar">
+    <nav class="filter chips" id="filter" aria-label="กรองตามสาขา"></nav>
+    <span class="count" id="count"></span>
+  </div>
+  <main id="list"></main>
+  <footer><span>ไม่ต้องล็อกอิน ผลการทดลองไม่ถูกส่งไปที่ใด เปิดหน้าใหม่หรือกดเริ่มใหม่แล้วค่าจะหายไป</span><span class="ver" id="ver"></span></footer>
+</div>
+<script type="module">
+import {BRANCHES, LABS, labPath} from "./labs.js";
+import {VERSION} from "./shared/version.js";
+
+document.getElementById("ver").textContent = `v${VERSION}`;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
+/* แสดงเฉพาะสาขาที่มีการทดลองแล้ว ตามลำดับใน BRANCHES */
+const used = BRANCHES.filter(b => LABS.some(l => l.branch === b.slug));
+const ready = LABS.filter(l => !l.soon).length, soon = LABS.length - ready;
+document.getElementById("count").textContent = `พร้อมใช้ ${ready} การทดลอง` + (soon ? ` · กำลังพัฒนา ${soon}` : "");
+
+function card(l) {
+  const href = labPath(l);
+  const img = l.thumb ? `<img src="${href}thumb.svg" alt="" width="320" height="120" loading="lazy">` : "";
+  const pic = img ? (l.soon ? `<div class="pic">${img}</div>` : `<a class="pic" href="${href}" tabindex="-1" aria-hidden="true">${img}</a>`) : "";
+  const meta = [["รายวิชา", l.course], ["เวลา", `~${l.minutes} นาที`], l.steps && ["ขั้นตอน", `${l.steps} ขั้น`]].filter(Boolean);
+  return `<article class="card${l.soon ? " soon" : ""}">
+    ${pic}
+    <div class="info">
+      <small><span>${esc(l.activity || "")}</span>${l.soon ? `<span class="badge">กำลังพัฒนา</span>` : ""}</small>
+      <h3>${esc(l.title)}</h3>
+      <p>${esc(l.summary)}</p>
+      <dl>${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+      ${l.soon ? `<span class="wait">ยังเปิดใช้ไม่ได้</span>` : `<a class="go" href="${href}">เริ่มการทดลอง →</a>`}
+    </div>
+  </article>`;
+}
+function render() {
+  const pick = location.hash.slice(1), cur = used.some(b => b.slug === pick) ? pick : "";
+  const chips = [{slug: "", name: "ทุกสาขา"}, ...used];
+  document.getElementById("filter").innerHTML = chips.map(b =>
+    `<button type="button" class="chip" data-b="${b.slug}" aria-pressed="${b.slug === cur}">${esc(b.name)}</button>`).join("");
+  document.querySelectorAll("#filter button").forEach(btn => btn.onclick = () => {
+    const b = btn.dataset.b;
+    history.replaceState(null, "", b ? "#" + b : location.pathname);
+    render();
+  });
+  const show = used.filter(b => !cur || b.slug === cur);
+  document.getElementById("list").innerHTML = show.length ? show.map(b => {
+    const labs = LABS.filter(l => l.branch === b.slug);
+    return `<section class="branch" id="b-${b.slug}"><h2>${esc(b.name)} <span>${labs.length} การทดลอง</span></h2><div class="grid">${labs.map(card).join("")}</div></section>`;
+  }).join("") : `<p class="empty">ยังไม่มีการทดลอง</p>`;
+}
+addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>

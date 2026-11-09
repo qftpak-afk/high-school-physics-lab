@@ -1,0 +1,111 @@
+/* High School Physics Lab — สไตล์ส่วนกลาง
+   ใบงานหนึ่งแถบวางข้างโต๊ะทดลองในห้องสว่าง สีเน้นเดียวคือสีไม้เมตร ส่วนสีสดมาจากสีของแสงเท่านั้น */
+:root{
+  color-scheme:light;
+  --bench:#e6e8e4; --panel:#fbfbf8; --panel-2:#eff1ed; --rule:#cdd2d0; --field:#ffffff;
+  --text:#1b2026; --mute:#56606a; --metre:#d9a93f; --metre-ink:#1c1609; --metre-text:#80590a;
+  --good:#17754a; --bad:#b93324; --float:rgba(255,255,255,.93);
+  --sans:"IBM Plex Sans Thai","Noto Sans Thai",Tahoma,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bench);color:var(--text);font:400 15px/1.6 var(--sans)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--metre-text)}
+:focus-visible{outline:2px solid var(--metre-text);outline-offset:2px}
+
+/* ---------- หน้าการทดลอง: แผงซ้าย ฉากขวา ---------- */
+html.lab,html.lab body{height:100%}
+html.lab body{overflow:hidden}
+#app{height:100%;display:grid;grid-template-columns:minmax(350px,420px) minmax(0,1fr)}
+#panel{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border-right:1px solid var(--rule)}
+#head{padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+#head .home{display:inline-block;font-size:13px;font-weight:500;color:var(--mute);text-decoration:none;margin-bottom:4px}
+#head .home:hover{color:var(--text);text-decoration:underline}
+.ver{font:500 12px var(--mono);color:var(--mute)}
+#head .ver{float:right;line-height:20px}
+#head small{display:block;color:var(--metre-text);font-weight:600;letter-spacing:.04em}
+#head h1{margin:0;font-size:19px;line-height:1.35;font-weight:700;text-wrap:balance}
+#stepper{display:grid;grid-template-columns:repeat(var(--steps,7),1fr);border-block:1px solid var(--rule)}
+#stepper button{height:42px;background:none;border:0;border-right:1px solid var(--rule);font:500 15px var(--mono);color:var(--mute);position:relative}
+#stepper button:last-child{border-right:0}
+#stepper button.done{color:var(--good)}
+#stepper button.on{background:var(--metre);color:var(--metre-ink);font-weight:600}
+#body{flex:1;min-height:0;overflow-y:auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px}
+#body h2{margin:0;font-size:18px;line-height:1.35;font-weight:700}
+#body>*{flex:none}
+.doc{margin:0;color:var(--mute);font-size:14px;border-left:2px solid var(--rule);padding-left:10px}
+.doc b{display:block;color:var(--text);font-weight:500;font-size:12px}
+.task{margin:0;font-weight:500}
+.note{margin:0;font-size:13.5px;color:var(--mute)}
+.warn{margin:0;font-size:13.5px;padding:8px 10px;background:var(--panel-2);border-left:2px solid var(--metre)}
+#ok{margin:0;font-weight:500;min-height:1.6em;font-size:14px}
+#ok.yes{color:var(--good)} #ok.no{color:var(--metre-text)} #ok.bad{color:var(--bad)}
+.field{display:grid;gap:4px}
+.field label{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.field output,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--metre);height:28px;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 12px;background:var(--panel-2);border:1px solid var(--rule);border-radius:3px;font-size:14px}
+.chip:hover{border-color:var(--mute)}
+.chip.on{background:var(--metre);color:var(--metre-ink);border-color:var(--metre);font-weight:600}
+.big{padding:10px 14px;background:var(--panel-2);border:1px solid var(--metre);border-radius:3px;font-weight:600}
+.big.on{background:var(--metre);color:var(--metre-ink)}
+.txt{width:100%;padding:6px 8px;background:var(--field);border:1px solid var(--rule);border-radius:3px;font-family:var(--mono)}
+table.read{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.read th{font-weight:500;color:var(--mute);font-size:12px;line-height:1.3;padding:3px 2px;text-align:center;border-bottom:1px solid var(--rule)}
+table.read td{padding:4px 2px;text-align:center;border-bottom:1px solid var(--rule);font-family:var(--mono)}
+table.read td.c{text-align:left;font-family:var(--sans);line-height:1.25}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:0}
+table.read input{width:56px;padding:4px 2px;text-align:center;background:var(--field);border:1px solid var(--rule);border-radius:3px;font-family:var(--mono)}
+table.read input.good{border-color:var(--good);color:var(--good)}
+table.read input.err{border-color:var(--bad);color:var(--bad)}
+.calc{display:grid;gap:6px;background:var(--panel-2);padding:10px 12px;border-radius:3px;font-size:14px}
+.calc div{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.calc .v{font-family:var(--mono);text-align:right}
+.calc .res{border-top:1px solid var(--rule);padding-top:6px;font-weight:600}
+i.m{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.08em}
+.bar{text-decoration:overline}
+.qs{margin:0;padding-left:20px;font-size:14px;display:grid;gap:4px}
+#foot{display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-top:1px solid var(--rule)}
+#foot button{padding:9px 12px;border-radius:3px;border:1px solid var(--rule);background:none;font-size:14px;font-weight:500}
+#foot #next{background:var(--metre);border-color:var(--metre);color:var(--metre-ink);font-weight:600}
+#foot #next:disabled{background:none;color:var(--mute);border-color:var(--rule);cursor:not-allowed}
+#foot #back:disabled{opacity:.4;cursor:default}
+#stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:var(--bench)}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;white-space:nowrap;font-size:13px;line-height:1.3;padding:1px 6px;background:var(--float);color:var(--text);border-radius:2px;will-change:transform}
+.lb.hint{background:var(--metre);color:var(--metre-ink);font-weight:600}
+.lb.math{font-family:var(--mono)}
+#hud{position:absolute;top:10px;left:10px;display:flex;flex-wrap:wrap;gap:6px;font-size:13px;pointer-events:none;max-width:calc(100% - 20px)}
+#hud span{background:var(--float);padding:2px 8px;border-radius:2px}
+#tools{position:absolute;right:calc(10px + env(safe-area-inset-right,0px));bottom:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+#tools button{padding:7px 12px;background:var(--float);border:1px solid var(--rule);border-radius:3px;font-size:14px}
+#tools button:hover{border-color:var(--metre-text)}
+#sheet{position:absolute;left:0;right:0;bottom:0;max-height:72%;display:flex;flex-direction:column;background:var(--panel);border-top:2px solid var(--metre);z-index:3}
+#sheet header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 14px}
+#sheet h3{margin:0;font-size:15px}
+#sheet header button{background:none;border:1px solid var(--rule);border-radius:3px;padding:3px 10px}
+#sheetMeta{padding:0 14px 8px;font-size:13.5px;color:var(--mute);display:flex;gap:4px 16px;flex-wrap:wrap}
+#sheetMeta b{color:var(--text);font-family:var(--mono);font-weight:500}
+#sheetWrap{overflow:auto;padding:0 14px 12px}
+table.full{border-collapse:collapse;font-size:13px;min-width:740px;width:100%;font-variant-numeric:tabular-nums}
+table.full th,table.full td{border:1px solid var(--rule);padding:4px 7px;text-align:center}
+table.full th{font-weight:500;background:var(--panel-2);line-height:1.3}
+table.full td{font-family:var(--mono)}
+table.full td.s{font-family:var(--sans)}
+#fail{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center}
+@media (max-width:860px){
+  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:42% minmax(0,1fr)}
+  #stage{grid-row:1}#panel{grid-row:2;border-right:0;border-top:1px solid var(--rule)}
+  /* มือถือเหลือแค่ลิงก์กลับหน้ารวม เพื่อเก็บที่ให้แผงขั้นตอน */
+  #head{padding-block:4px}
+  #head .home{margin:0}
+  #head small,#head h1{display:none}
+  #sheet{max-height:100%}
+  .lb{font-size:12px}
+}
