@@ -4,6 +4,7 @@
 
    ช่องของแต่ละการทดลอง
    slug, title, branch, course, minutes, summary   ต้องมี
+   titleEn    ชื่อภาษาอังกฤษ แสดงใต้ชื่อบนการ์ด
    activity   เลขกิจกรรมที่แสดงบนการ์ด
    steps      จำนวนขั้นตอน
    thumb      true ถ้ามีภาพ thumb.svg ในโฟลเดอร์การทดลอง (สัดส่วน 320×120)
@@ -22,9 +23,9 @@ export const BRANCHES = [
 export const LABS = [
   {
     slug: "spectrum",
-    title: "การศึกษาสเปกตรัมของแก๊สร้อน",
+    title: "สเปกตรัมของแก๊สร้อน",
+    titleEn: "Spectra of Hot Gases",
     branch: "atomic",
-    activity: "กิจกรรม 1",
     course: "ว33206 ฟิสิกส์ 6",
     minutes: 50,
     steps: 7,
@@ -34,14 +35,24 @@ export const LABS = [
   {
     slug: "photoelectric",
     title: "ปรากฏการณ์โฟโตอิเล็กทริก",
+    titleEn: "Photoelectric Effect",
     branch: "atomic",
-    activity: "กิจกรรม 2",
     course: "ว33206 ฟิสิกส์ 6",
     minutes: 100,
     steps: 9,
     thumb: true,
-    soon: true,
     summary: "วัดศักย์หยุดยั้งของหลอดโฟโตเซลล์ที่ความถี่แสงต่าง ๆ แล้วหาค่าคงตัวของพลังค์จากความชันของกราฟ Vₛ กับ f"
+  },
+  {
+    slug: "radioactive-decay",
+    title: "การสลายตัวของกัมมันตภาพรังสี",
+    titleEn: "Radioactive Decay",
+    branch: "nuclear",
+    course: "ว33206 ฟิสิกส์ 6",
+    minutes: 50,
+    steps: 8,
+    thumb: true,
+    summary: "นับรังสีด้วยเครื่องนับไกเกอร์ หักรังสีพื้นหลัง แล้วหาครึ่งชีวิตของสารจากความชันของกราฟ ln(N − B) กับ t"
   }
 ];
 

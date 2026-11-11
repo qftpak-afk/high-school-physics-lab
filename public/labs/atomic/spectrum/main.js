@@ -1,7 +1,7 @@
 /* กิจกรรม 1 การศึกษาสเปกตรัมของแก๊สร้อน: สถานะ ขั้นตอน ฉากอุปกรณ์ และตาราง
    ส่วนกลาง (renderer กล้อง ป้าย แผงขั้นตอน) อยู่ใน shared/lab-core.js */
 import {$, clamp, fmt, reduce, createScene, createPanel} from "../../../shared/lab-core.js";
-import {GAS, TUBES, dCm, lineX, solve, wlAt, trueReading, wl2rgb, cssWl} from "./physics.js";
+import {GAS, GRATINGS, TUBES, dCm, distanceOK, targetD, lineX, solve, wlAt, trueReading, wl2rgb, cssWl} from "./physics.js";
 
 const THREE = window.THREE;
 
@@ -12,7 +12,7 @@ let S = START();
 const ok = {
   1: () => !!S.gas,
   2: () => Math.abs(S.err) <= .5 && Math.abs(S.tilt) <= .5,
-  3: () => S.D >= 95 && S.D <= 105,
+  3: () => distanceOK(S.D, S.lpi),
   4: () => S.on && Math.abs(S.phi) <= 1.5,
   5: () => TUBES.some(g => fullRows(g) === 3),
   6: () => TUBES.some(g => fullRows(g) > 0),
@@ -357,6 +357,11 @@ core.interact({
 let onTimer = null;
 function setErr(v) { if (v === S.err) return; S.err = v; if (clearReadings()) panel.notice = "ไม้เมตรขยับ จึงล้างค่าที่อ่านไว้"; panel.live(); }
 function setD(v) { if (v === S.D) return; S.D = v; if (clearReadings()) panel.notice = "ระยะ D เปลี่ยน จึงล้างค่าที่อ่านไว้"; buildLines(); panel.live(); }
+function setGrating(v) {
+  if (v === S.lpi) return;
+  S.lpi = v; if (clearReadings()) panel.notice = "เปลี่ยนเกรตติง จึงล้างค่าที่อ่านไว้";
+  buildLines(); panel.render();
+}
 function setPower(v) {
   if (v && !S.gas) { panel.notice = "ยังไม่มีหลอดในที่เสียบ"; panel.live(); return; }
   S.on = v; if (v && !S.seen.includes(S.gas)) S.seen.push(S.gas);
@@ -379,7 +384,7 @@ function fillGas(g) {
 const AUTO = {
   1() { if (!S.gas) insertTube("H"); },
   2() { S.err = 0; S.tilt = 0; clearReadings(); },
-  3() { S.D = 100; clearReadings(); buildLines(); },
+  3() { S.D = targetD(S.lpi); clearReadings(); buildLines(); },
   4() { if (!S.gas) S.gas = "H"; S.on = true; S.phi = 0; if (!S.seen.includes(S.gas)) S.seen.push(S.gas); buildLines(); },
   5() { if (S.gas === "lamp") S.gas = "H"; fillGas(S.gas); buildLines(); },
   6() { if (!S.calc) pickCalc(); },
@@ -439,20 +444,16 @@ const STEPS = {
       const a = Math.abs(S.err) <= .5, b = Math.abs(S.tilt) <= .5;
       return a && b ? ["yes", "ขีด 50 cm ตรงหลอดและไม้เมตรได้ระดับแล้ว"] : ["no", !a ? "ขีด 50 cm ยังไม่ตรงหลอด" : "ไม้เมตรยังเอียงอยู่ ให้ฟองระดับอยู่กลางขีด"];
     }},
-  3: {t: "วัดระยะ D ประมาณ 1 เมตร", doc: `วัดระยะตั้งฉาก ${Dm} จากไม้เมตรให้ห่างออกมาประมาณ 1 เมตร ซึ่งเป็นตำแหน่งที่ใช้มองผ่านเกรตติง`,
-    html: () => `<p class="task">ลากเกรตติงตามแนวตลับเมตร ให้แนวมองตั้งฉากกับไม้เมตรที่ขีด 50 cm</p>
+  3: {t: "เลือกเกรตติงและวัดระยะ D", doc: `วัดระยะตั้งฉาก ${Dm} จากไม้เมตรให้ห่างออกมาประมาณ 1 เมตร ซึ่งเป็นตำแหน่งที่ใช้มองผ่านเกรตติง`,
+    html: () => `<p class="task">เลือกเกรตติงที่ใช้ แล้วลากเกรตติงตามแนวตลับเมตรให้ ${Dm} ราว ${targetD(S.lpi)} cm โดยแนวมองตั้งฉากกับไม้เมตรที่ขีด 50 cm</p>
+      <div class="field"><label>เกรตติงที่ใช้ (เส้นต่อนิ้ว)</label><div class="chips">${GRATINGS.map(g => `<button type="button" class="chip gratpick ${S.lpi === g.lpi ? "on" : ""}" data-lpi="${g.lpi}">${g.lpi.toLocaleString()}</button>`).join("")}</div><span class="note" id="dInfo"></span></div>
       <div class="field"><label for="dS"><span>ระยะ ${Dm}</span> <output id="dO"></output></label><input id="dS" type="range" min="25" max="130" step="1"></div>
-      <div class="field"><label for="lpiI">เกรตติงที่ใช้ (เส้นต่อนิ้ว)</label><input class="txt" id="lpiI" inputmode="numeric" autocomplete="off"><span class="note" id="dInfo"></span></div>
-      <p class="note">ดูจำนวนเส้นจากกรอบเกรตติงจริงในห้องแล้วแก้ค่านี้ได้ ทุกตำแหน่งในฉากจะคำนวณตามค่านี้</p>`,
+      ${targetD(S.lpi) !== 100 ? `<p class="note">ใช้ระยะสั้นกว่าในใบกิจกรรม เพราะเกรตติงนี้มีเส้นถี่กว่า แสงจึงเบนออกไปไกลกว่า ถ้าใช้ ${Dm} ราว 1 เมตร เส้นสีแดงจะตกนอกไม้เมตร</p>` : ""}`,
     bind() {
       $("dS").oninput = e => setD(+e.target.value);
-      $("lpiI").onchange = e => {
-        const v = parseInt(String(e.target.value).replace(/[, ]/g, ""), 10);
-        if (!Number.isFinite(v) || v < 2500 || v > 15000) { panel.notice = "bad:ใส่จำนวนเส้นระหว่าง 2,500 ถึง 15,000 เส้นต่อนิ้ว เกินกว่านี้เส้นสีแดงจะตกนอกไม้เมตร"; e.target.value = S.lpi; panel.live(); return; }
-        S.lpi = v; if (clearReadings()) panel.notice = "เปลี่ยนเกรตติง จึงล้างค่าที่อ่านไว้"; buildLines(); panel.live();
-      };
+      $("body").querySelectorAll(".gratpick").forEach(b => b.onclick = () => setGrating(+b.dataset.lpi));
     },
-    live() { return ok[3]() ? ["yes", `D = ${S.D} cm ใช้ได้`] : ["no", `ตอนนี้ D = ${S.D} cm ต้องอยู่ราว 100 cm`]; }},
+    live() { return ok[3]() ? ["yes", `D = ${S.D} cm ใช้ได้`] : ["no", `ตอนนี้ D = ${S.D} cm ต้องอยู่ราว ${targetD(S.lpi)} cm`]; }},
   4: {t: "เปิดสวิตช์แล้วมองผ่านเกรตติง", doc: "เปิดสวิตซ์ชุดสเปกตรัมแล้วมองผ่านเกรตติง จัดระนาบของสเปกตรัมให้เห็นเส้นสเปกตรัมปรากฏชัดที่ทั้งสองข้างของไม้เมตร",
     html: () => `<button type="button" class="big ${S.on ? "on" : ""}" id="pw">${S.on ? "ปิดสวิตช์" : "เปิดสวิตช์ชุดสเปกตรัม"}</button>
       ${S.on ? `<p class="task">หมุนเกรตติงจนเส้นสเปกตรัมเรียงอยู่ตามแนวไม้เมตรทั้งสองข้าง</p>
@@ -470,7 +471,12 @@ const STEPS = {
     html: () => `<p class="task">กดช่องตำแหน่ง ภาพจะซูมไปที่เส้นนั้น อ่านค่าจากไม้เมตรเป็น cm แล้วกด Enter</p>${readTable()}
       <p class="note">อ่านชุดเส้นที่อยู่ใกล้ขีด 50 cm ที่สุดในแต่ละสี ระยะ ${Math_x} = |ตำแหน่ง − 50| ถ้าขีด 50 ไม่ตรงหลอดพอดี ${Math_x} สองข้างจะต่างกันเล็กน้อย ค่าเฉลี่ย ${Xbar} จึงช่วยลดความคลาดเคลื่อนนี้</p>`,
     bind() { bindRead(); },
-    live() { const n = fullRows(S.gas || ""); return n === 3 ? ["yes", "บันทึกครบ 3 สีแล้ว"] : ["no", `บันทึกครบแล้ว ${n} จาก 3 สี`]; }},
+    live() {
+      const n = GAS[S.gas] ? fullRows(S.gas) : 0;
+      if (n === 3) return ["yes", "บันทึกครบ 3 สีแล้ว"];
+      const done = TUBES.find(g => fullRows(g) === 3);
+      return done ? ["yes", `บันทึกหลอด${GAS[done].name}ครบแล้ว ไปขั้นถัดไปได้ หลอดนี้บันทึกแล้ว ${n} จาก 3 สี`] : ["no", `บันทึกครบแล้ว ${n} จาก 3 สี`];
+    }},
   6: {t: "คำนวณความยาวคลื่น", doc: `คำนวณหาความยาวคลื่นของสเปกตรัม จากสมการ <i class="m">λ</i> = ${dm} sin<i class="m">θ</i> เมื่อ ${dm} คือ ระยะระหว่างเส้นของเกรตติง`,
     html: () => {
       const list = []; TUBES.forEach(g => GAS[g].read.forEach((r, i) => { if (rowCalc(g, i)) list.push({g, i, r}); }));
@@ -507,7 +513,7 @@ const panel = createPanel({
   getStep: () => S.step, setStep: n => { S.step = n; },
   finishLabel: "ดูตารางบันทึกผล",
   onFinish: () => toggleSheet(true),
-  beforeGoTo() { clearTimeout(onTimer); S.focus = null; },
+  beforeGoTo() { clearTimeout(onTimer); S.focus = null; panel.notice = ""; },
   onEnter(n) { S.naked = false; if (n === 6 && !S.calc) pickCalc(); camForStep(); buildLines(); buildTri(); },
   afterAuto(n) { if (n === 4 || n === 7) setEye(); buildLines(); },
   afterRender() { syncTools(); if (S.sheet) renderSheet(); },
@@ -527,7 +533,7 @@ function syncInputs() {
   const e = $("errS"); if (e) { e.value = 50 + S.err; $("errO").textContent = fmt(50 + S.err) + " cm"; }
   const t = $("tiltS"); if (t) { t.value = S.tilt; $("tiltO").textContent = fmt(S.tilt) + "°"; }
   const d = $("dS"); if (d) { d.value = S.D; $("dO").textContent = S.D + " cm"; }
-  const l = $("lpiI"); if (l) { if (document.activeElement !== l) l.value = S.lpi; $("dInfo").innerHTML = `= ${(S.lpi / 2.54).toLocaleString(undefined, {maximumFractionDigits: 0})} เส้นต่อ cm · ${dm} = ${lamCm(dCm(S.lpi))} cm`; }
+  const info = $("dInfo"); if (info) info.innerHTML = `= ${(S.lpi / 2.54).toLocaleString(undefined, {maximumFractionDigits: 0})} เส้นต่อ cm · ${dm} = ${lamCm(dCm(S.lpi))} cm`;
   const p = $("phiS"); if (p) { p.value = S.phi; $("phiO").textContent = S.phi + "°"; }
 }
 function syncTools() {

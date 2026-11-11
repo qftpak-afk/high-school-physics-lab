@@ -33,6 +33,7 @@ section.branch h2 span{font:500 13px var(--mono);color:var(--mute)}
 .card .info{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
 .card small{display:flex;justify-content:space-between;gap:8px;color:var(--metre-text);font-weight:600;font-size:12.5px;letter-spacing:.03em}
 .card h3{margin:0;font-size:18px;line-height:1.35;font-weight:700;text-wrap:balance}
+.card h3 .en{display:block;font-size:13.5px;font-weight:500;color:var(--mute)}
 .card p{margin:0;color:var(--mute);font-size:14px;flex:1}
 .card dl{display:flex;gap:4px 16px;flex-wrap:wrap;margin:6px 0 0;font-size:13px}
 .card dl div{display:flex;gap:6px}
@@ -84,8 +85,8 @@ function card(l) {
   return `<article class="card${l.soon ? " soon" : ""}">
     ${pic}
     <div class="info">
-      <small><span>${esc(l.activity || "")}</span>${l.soon ? `<span class="badge">กำลังพัฒนา</span>` : ""}</small>
-      <h3>${esc(l.title)}</h3>
+      ${l.activity || l.soon ? `<small><span>${esc(l.activity || "")}</span>${l.soon ? `<span class="badge">กำลังพัฒนา</span>` : ""}</small>` : ""}
+      <h3>${esc(l.title)}${l.titleEn ? `<span class="en" lang="en">${esc(l.titleEn)}</span>` : ""}</h3>
       <p>${esc(l.summary)}</p>
       <dl>${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
       ${l.soon ? `<span class="wait">ยังเปิดใช้ไม่ได้</span>` : `<a class="go" href="${href}">เริ่มการทดลอง →</a>`}

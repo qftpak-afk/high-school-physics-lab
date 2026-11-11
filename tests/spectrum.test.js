@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {GAS, TUBES, dCm, lineX, solve, trueReading, wlAt} from "../public/labs/atomic/spectrum/physics.js";
+import {GAS, GRATINGS, TUBES, dCm, distanceOK, lineX, solve, targetD, trueReading, wlAt} from "../public/labs/atomic/spectrum/physics.js";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ได้ ${a} คาด ${b} ±${tol}`);
 
@@ -34,6 +34,31 @@ test("ขีด 50 ไม่ตรงหลอดทำให้ x สองข�
 test("แถบต่อเนื่อง: ความยาวคลื่นที่ X = x ของเส้นตรงกับเส้นนั้น", () => {
   const x = lineX(546.07, 100, 13400);
   near(wlAt(x, 100, 13400), 546.07, 1e-6);
+});
+
+test("ระยะ D ที่เหมาะสม: 13,400 ใช้ 100 cm และ 25,400 ใช้ 50 cm คลาดได้ 5%", () => {
+  assert.equal(targetD(13400), 100);
+  assert.equal(targetD(25400), 50);
+  for (const D of [95, 100, 105]) assert.ok(distanceOK(D, 13400), `13400 D=${D}`);
+  for (const D of [94, 106, 50]) assert.ok(!distanceOK(D, 13400), `13400 D=${D}`);
+  for (const D of [48, 50, 52]) assert.ok(distanceOK(D, 25400), `25400 D=${D}`);
+  for (const D of [45, 47, 53, 100]) assert.ok(!distanceOK(D, 25400), `25400 D=${D}`);
+});
+
+test("ทุกเกรตติง: เส้นที่ให้อ่านอยู่บนไม้เมตรตลอดช่วง D ที่ผ่าน แม้ขีด 50 คลาด 0.5 cm", () => {
+  for (const {lpi, D: target} of GRATINGS) for (let D = Math.ceil(target * .95); D <= target * 1.05; D++)
+    for (const g of TUBES) for (const r of GAS[g].read) for (const sd of ["L", "R"]) for (const err of [-.5, 0, .5]) {
+      const v = trueReading(r.nm, sd, {D, lpi, err});
+      assert.ok(v > 0 && v < 100, `${lpi} D=${D} ${g} ${r.c} ${sd} err=${err} = ${v}`);
+    }
+});
+
+test("เกรตติง 25,400 ที่ D = 100 cm เส้นสีแดงตกนอกไม้เมตร จึงต้องลดระยะ", () => {
+  assert.ok(lineX(656.28, 100, 25400) > 50);
+});
+
+test("solve ย้อนกลับ lineX ได้ความยาวคลื่นเดิมกับเกรตติง 25,400", () => {
+  for (const g of TUBES) for (const r of GAS[g].read) near(solve(lineX(r.nm, 50, 25400), 50, 25400).nm, r.nm, 1e-6, `${g} ${r.c}`);
 });
 
 test("เส้นที่ให้อ่านทุกเส้นอยู่บนไม้เมตร (0–100 cm) ที่ D = 100 cm", () => {

@@ -29,6 +29,7 @@ html.lab body{overflow:hidden}
 #head .ver{float:right;line-height:20px}
 #head small{display:block;color:var(--metre-text);font-weight:600;letter-spacing:.04em}
 #head h1{margin:0;font-size:19px;line-height:1.35;font-weight:700;text-wrap:balance}
+#head h1 .en{display:block;font-size:13px;font-weight:500;color:var(--mute)}
 #stepper{display:grid;grid-template-columns:repeat(var(--steps,7),1fr);border-block:1px solid var(--rule)}
 #stepper button{height:42px;background:none;border:0;border-right:1px solid var(--rule);font:500 15px var(--mono);color:var(--mute);position:relative}
 #stepper button:last-child{border-right:0}

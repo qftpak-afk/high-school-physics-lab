@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="th" class="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>การสลายตัวของกัมมันตภาพรังสี · High School Physics Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../shared/lab.css">
+<link rel="icon" href="../../../shared/icon.svg" type="image/svg+xml">
+<style>
+/* เฉพาะกิจกรรมนี้: กราฟ แถวปุ่ม และแถวคำทำนาย */
+canvas.graph{width:100%;display:block;background:var(--panel-2);border:1px solid var(--rule)}
+.pred{display:grid;gap:4px;font-size:14px}
+.rows{display:flex;flex-wrap:wrap;gap:6px}
+.rows button{padding:7px 12px;background:var(--panel-2);border:1px solid var(--metre);border-radius:3px;font-size:14px;font-weight:500}
+.rows button:hover:not(:disabled){background:var(--metre);color:var(--metre-ink)}
+.rows button:disabled{border-color:var(--rule);color:var(--mute);cursor:not-allowed}
+.rows button.main{background:var(--metre);color:var(--metre-ink);font-weight:600}
+#skipT{font-family:var(--mono)}
+table.read tr.cur td{background:var(--panel-2)}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <div id="head"><a class="home" href="../../../">← หน้ารวมการทดลอง</a><small>วิธีทดลองแบบ 3 มิติ</small><h1>การสลายตัวของกัมมันตภาพรังสี<span class="en" lang="en">Radioactive Decay</span></h1></div>
+    <nav id="stepper" aria-label="ขั้นตอนการทดลอง"></nav>
+    <div id="body"></div>
+    <div id="foot">
+      <button id="back" type="button">ย้อนกลับ</button>
+      <button id="auto" type="button">ทำขั้นนี้ให้</button>
+      <button id="next" type="button">ขั้นถัดไป</button>
+    </div>
+  </aside>
+  <main id="stage">
+    <div id="labels"></div>
+    <div id="hud"></div>
+    <div id="tools">
+      <button id="sound" type="button">เสียงนับ: ปิด</button>
+      <button id="openSheet" type="button">ตารางบันทึกผล</button>
+      <button id="reset" type="button">เริ่มใหม่</button>
+    </div>
+    <section id="sheet" hidden aria-label="ตารางบันทึกผลการทดลอง">
+      <header><h3>ตารางบันทึกผลการทดลอง</h3><button id="closeSheet" type="button">ปิด</button></header>
+      <div id="sheetMeta"></div>
+      <div id="sheetWrap"></div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

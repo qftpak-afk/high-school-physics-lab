@@ -19,6 +19,12 @@ export const GAS = {
 };
 export const TUBES = ["H", "He", "Ne", "Hg"];
 
+/* เกรตติงที่เลือกได้ และระยะ D ที่เหมาะสม: เส้นยิ่งถี่ แสงยิ่งเบนมาก จึงต้องลด D ให้เส้นยังอยู่บนไม้เมตร */
+export const GRATINGS = [{lpi: 13400, D: 100}, {lpi: 25400, D: 50}];
+export const targetD = lpi => GRATINGS.find(g => g.lpi === lpi).D;
+/* ระยะ D ผ่านเมื่อคลาดจากค่าที่เหมาะสมไม่เกิน 5% */
+export const distanceOK = (D, lpi) => Math.abs(D - targetD(lpi)) / targetD(lpi) <= .05;
+
 /* d = 2.54 / เส้นต่อนิ้ว (cm) */
 export const dCm = lpi => 2.54 / lpi;
 
